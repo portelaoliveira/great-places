@@ -4,20 +4,18 @@ import 'package:great_places/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 
 class PlacesListScreen extends StatelessWidget {
-  const PlacesListScreen({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Meus Lugares'),
-        actions: [
+        title: Text('Meus Lugares'),
+        actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: Icon(Icons.add),
             onPressed: () {
-              Navigator.of(context).pushNamed(AppRoutes.placeForm);
+              Navigator.of(context).pushNamed(AppRoutes.PLACE_FORM);
             },
-          )
+          ),
         ],
       ),
       body: FutureBuilder(
@@ -26,11 +24,11 @@ class PlacesListScreen extends StatelessWidget {
                 ConnectionState.waiting
             ? Center(child: CircularProgressIndicator())
             : Consumer<GreatPlaces>(
-                child: const Center(
+                child: Center(
                   child: Text('Nenhum local cadastrado!'),
                 ),
                 builder: (ctx, greatPlaces, ch) => greatPlaces.itemsCount == 0
-                    ? ch!
+                    ? ch
                     : ListView.builder(
                         itemCount: greatPlaces.itemsCount,
                         itemBuilder: (ctx, i) => ListTile(
@@ -40,7 +38,14 @@ class PlacesListScreen extends StatelessWidget {
                             ),
                           ),
                           title: Text(greatPlaces.itemByIndex(i).title),
-                          onTap: () {},
+                          subtitle:
+                              Text(greatPlaces.itemByIndex(i).location.address),
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              AppRoutes.PLACE_DETAIL,
+                              arguments: greatPlaces.itemByIndex(i),
+                            );
+                          },
                         ),
                       ),
               ),

@@ -8,29 +8,31 @@ import 'package:path_provider/path_provider.dart' as syspaths;
 class ImageInput extends StatefulWidget {
   final Function onSelectImage;
 
-  const ImageInput(this.onSelectImage, {Key? key}) : super(key: key);
+  ImageInput(this.onSelectImage);
 
   @override
-  State<ImageInput> createState() => _ImageInputState();
+  _ImageInputState createState() => _ImageInputState();
 }
 
 class _ImageInputState extends State<ImageInput> {
-  File? _storedImage;
+  File _storedImage;
 
   _takePicture() async {
-    final ImagePicker picker = ImagePicker();
-    XFile imageFile = await picker.pickImage(
+    final ImagePicker _picker = ImagePicker();
+    PickedFile imageFile = await _picker.getImage(
       source: ImageSource.camera,
       maxWidth: 600,
-    ) as XFile;
+    );
+
+    if (imageFile == null) return;
 
     setState(() {
       _storedImage = File(imageFile.path);
     });
 
     final appDir = await syspaths.getApplicationDocumentsDirectory();
-    String fileName = path.basename(_storedImage!.path);
-    final savedImage = await _storedImage!.copy(
+    String fileName = path.basename(_storedImage.path);
+    final savedImage = await _storedImage.copy(
       '${appDir.path}/$fileName',
     );
     widget.onSelectImage(savedImage);
@@ -39,7 +41,7 @@ class _ImageInputState extends State<ImageInput> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: [
+      children: <Widget>[
         Container(
           width: 180,
           height: 100,
@@ -49,20 +51,21 @@ class _ImageInputState extends State<ImageInput> {
           alignment: Alignment.center,
           child: _storedImage != null
               ? Image.file(
-                  _storedImage!,
+                  _storedImage,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 )
-              : const Text('Nenhuma imagem!'),
+              : Text('Nenhuma imagem!'),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(
-          child: TextButton.icon(
-            icon: const Icon(Icons.camera),
-            label: const Text('Tirar Foto'),
+          child: FlatButton.icon(
+            icon: Icon(Icons.camera),
+            label: Text('Tirar Foto'),
+            textColor: Theme.of(context).primaryColor,
             onPressed: _takePicture,
           ),
-        ),
+        )
       ],
     );
   }
